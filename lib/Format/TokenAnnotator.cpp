@@ -1321,7 +1321,12 @@ void TokenAnnotator::annotate(AnnotatedLine &Line) {
 // This function heuristically determines whether 'Current' starts the name of a
 // function declaration.
 static bool isFunctionDeclarationName(const FormatToken &Current) {
-  if ((!Current.is(TT_StartOfName) && !Current.Tok.is(tok::kw_operator)) ||
+  bool isConstructorWithExplicit = Current.is(tok::identifier) &&
+    Current.Previous && Current.Previous->is(tok::kw_explicit);
+
+  if ((!Current.is(TT_StartOfName) &&
+       !Current.is(tok::kw_operator) &&
+       !isConstructorWithExplicit) ||
       Current.NestingLevel != 0)
     return false;
   const FormatToken *Next = Current.Next;
