@@ -190,6 +190,8 @@ template <> struct MappingTraits<FormatStyle> {
                    Style.AllowShortFunctionsOnASingleLine);
     IO.mapOptional("AlwaysBreakAfterDefinitionReturnType",
                    Style.AlwaysBreakAfterDefinitionReturnType);
+    IO.mapOptional("AlwaysBreakAfterDeclarationReturnType",
+                   Style.AlwaysBreakAfterDeclarationReturnType);
     IO.mapOptional("AlwaysBreakTemplateDeclarations",
                    Style.AlwaysBreakTemplateDeclarations);
     IO.mapOptional("AlwaysBreakBeforeMultilineStrings",
@@ -338,6 +340,7 @@ FormatStyle getLLVMStyle() {
   LLVMStyle.AllowShortIfStatementsOnASingleLine = false;
   LLVMStyle.AllowShortLoopsOnASingleLine = false;
   LLVMStyle.AlwaysBreakAfterDefinitionReturnType = false;
+  LLVMStyle.AlwaysBreakAfterDeclarationReturnType = false;
   LLVMStyle.AlwaysBreakBeforeMultilineStrings = false;
   LLVMStyle.AlwaysBreakTemplateDeclarations = false;
   LLVMStyle.BinPackParameters = true;

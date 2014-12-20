@@ -1410,6 +1410,11 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) {
       // and tok::lbrace.
       Current->MustBreakBefore = true;
 
+    if (Style.AlwaysBreakAfterDeclarationReturnType &&
+        Current->is(TT_FunctionDeclarationName)) {
+      Current->MustBreakBefore = true;
+    }
+
     Current->CanBreakBefore =
         Current->MustBreakBefore || canBreakBefore(Line, *Current);
     unsigned ChildSize = 0;

@@ -271,6 +271,9 @@ struct FormatStyle {
   /// irrelevant.
   bool AlwaysBreakAfterDefinitionReturnType;
 
+  /// \brief If \c true, always break after function declaration return types.
+  bool AlwaysBreakAfterDeclarationReturnType;
+
   /// \brief If \c true, always break after the <tt>template<...></tt> of a
   /// template declaration.
   bool AlwaysBreakTemplateDeclarations;
@@ -424,6 +427,8 @@ struct FormatStyle {
            AllowShortLoopsOnASingleLine == R.AllowShortLoopsOnASingleLine &&
            AlwaysBreakAfterDefinitionReturnType ==
                R.AlwaysBreakAfterDefinitionReturnType &&
+           AlwaysBreakAfterDeclarationReturnType ==
+               R.AlwaysBreakAfterDeclarationReturnType &&
            AlwaysBreakTemplateDeclarations ==
                R.AlwaysBreakTemplateDeclarations &&
            AlwaysBreakBeforeMultilineStrings ==
