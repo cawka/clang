@@ -353,6 +353,10 @@ struct FormatStyle {
   /// template argument lists
   bool SpacesInAngles;
 
+  /// \brief If \c true, space will be inserted between "template" and '<' in
+  /// template declaration
+  bool SpaceBetweenTemplateAndOpeningAngle;
+
   /// \brief If \c true, spaces will be inserted after '[' and before ']'.
   bool SpacesInSquareBrackets;
 
@@ -470,6 +474,7 @@ struct FormatStyle {
            UseTab == R.UseTab && SpacesInParentheses == R.SpacesInParentheses &&
            SpacesInSquareBrackets == R.SpacesInSquareBrackets &&
            SpacesInAngles == R.SpacesInAngles &&
+           SpaceBetweenTemplateAndOpeningAngle == R.SpaceBetweenTemplateAndOpeningAngle &&
            SpaceInEmptyParentheses == R.SpaceInEmptyParentheses &&
            SpacesInContainerLiterals == R.SpacesInContainerLiterals &&
            SpacesInCStyleCastParentheses == R.SpacesInCStyleCastParentheses &&

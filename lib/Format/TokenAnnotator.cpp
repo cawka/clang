@@ -1823,6 +1823,8 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
   if (Right.is(TT_TemplateOpener) && Left.is(tok::r_paren) &&
       Left.MatchingParen && Left.MatchingParen->is(TT_OverloadedOperatorLParen))
     return false;
+  if (Right.is(TT_TemplateOpener) && Left.is(tok::kw_template))
+    return Style.SpaceBetweenTemplateAndOpeningAngle;
   if (Right.is(tok::less) && Left.isNot(tok::l_paren) &&
       Line.First->is(tok::hash))
     return true;
