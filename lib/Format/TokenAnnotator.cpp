@@ -495,12 +495,13 @@ private:
         if (CurrentToken->isOneOf(tok::star, tok::amp))
           CurrentToken->Type = TT_PointerOrReference;
         consumeToken();
-        if (CurrentToken && CurrentToken->Previous->is(TT_BinaryOperator))
+        if (CurrentToken &&
+            CurrentToken->Previous->isOneOf(TT_BinaryOperator, TT_UnaryOperator))
           CurrentToken->Previous->Type = TT_OverloadedOperator;
       }
       if (CurrentToken) {
         CurrentToken->Type = TT_OverloadedOperatorLParen;
-        if (CurrentToken->Previous->is(TT_BinaryOperator))
+        if (CurrentToken->Previous->isOneOf(TT_BinaryOperator, TT_UnaryOperator))
           CurrentToken->Previous->Type = TT_OverloadedOperator;
       }
       break;
@@ -1320,7 +1321,8 @@ void TokenAnnotator::annotate(AnnotatedLine &Line) {
 // This function heuristically determines whether 'Current' starts the name of a
 // function declaration.
 static bool isFunctionDeclarationName(const FormatToken &Current) {
-  if (!Current.is(TT_StartOfName) || Current.NestingLevel != 0)
+  if ((!Current.is(TT_StartOfName) && !Current.Tok.is(tok::kw_operator)) ||
+      Current.NestingLevel != 0)
     return false;
   const FormatToken *Next = Current.Next;
   for (; Next; Next = Next->Next) {
@@ -1331,6 +1333,17 @@ static bool isFunctionDeclarationName(const FormatToken &Current) {
       if (!Next || !Next->is(tok::identifier))
         return false;
     } else if (Next->is(tok::l_paren)) {
+      break;
+    } else if (Next->is(TT_OverloadedOperator)) {
+      Next = Next->Next;
+      for (; Next && Next->is(TT_OverloadedOperator); Next = Next->Next);
+      break;
+    } else if (Next->is(tok::l_square)) {
+      Next = Next->Next;
+      if (!Next || !Next->is(tok::r_square)) {
+        return false;
+      }
+      Next = Next->Next;
       break;
     } else {
       return false;
