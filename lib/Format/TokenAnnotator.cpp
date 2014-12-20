@@ -1323,19 +1323,20 @@ void TokenAnnotator::annotate(AnnotatedLine &Line) {
 static bool isFunctionDeclarationName(const FormatToken &Current) {
   bool isConstructorWithExplicit = Current.is(tok::identifier) &&
     Current.Previous && Current.Previous->is(tok::kw_explicit);
-
-  if ((!Current.is(TT_StartOfName) &&
-       !Current.is(tok::kw_operator) &&
-       !isConstructorWithExplicit) ||
+  bool isOperator = Current.is(tok::kw_operator);
+  if (isOperator && Current.Previous && Current.Previous->is(tok::coloncolon))
+    return false;
+  if ((!Current.is(TT_StartOfName) && !isOperator && !isConstructorWithExplicit) ||
       Current.NestingLevel != 0)
     return false;
+  // std::cout << getTokenName(Current.Tok.getKind()) << ": " << Current.NestingLevel << std::endl;
   const FormatToken *Next = Current.Next;
   for (; Next; Next = Next->Next) {
     if (Next->is(TT_TemplateOpener)) {
       Next = Next->MatchingParen;
     } else if (Next->is(tok::coloncolon)) {
       Next = Next->Next;
-      if (!Next || !Next->is(tok::identifier))
+      if (!Next || !Next->isOneOf(tok::identifier, tok::kw_operator))
         return false;
     } else if (Next->is(tok::l_paren)) {
       break;
@@ -1343,7 +1344,7 @@ static bool isFunctionDeclarationName(const FormatToken &Current) {
       Next = Next->Next;
       for (; Next && Next->is(TT_OverloadedOperator); Next = Next->Next);
       break;
-    } else if (Next->is(tok::l_square)) {
+    } else if (isOperator && Next->is(tok::l_square)) {
       Next = Next->Next;
       if (!Next || !Next->is(tok::r_square)) {
         return false;
@@ -1525,6 +1526,8 @@ unsigned TokenAnnotator::splitPenalty(const AnnotatedLine &Line,
       return 3;
     if (Left.is(TT_StartOfName))
       return 20;
+    if (Left.is(tok::coloncolon))
+        return 500;
     if (InFunctionDecl && Right.NestingLevel == 0)
       return Style.PenaltyReturnTypeOnItsOwnLine;
     return 200;
@@ -1950,8 +1953,11 @@ bool TokenAnnotator::canBreakBefore(const AnnotatedLine &Line,
   if (Left.isOneOf(TT_JavaAnnotation, TT_LeadingJavaAnnotation))
     return true;
   if (Right.isOneOf(TT_StartOfName, TT_FunctionDeclarationName) ||
-      Right.is(tok::kw_operator))
+      Right.is(tok::kw_operator)) {
+    if (Right.is(tok::kw_operator) && Left.is(tok::coloncolon))
+      return false;
     return true;
+  }
   if (Right.isTrailingComment())
     // We rely on MustBreakBefore being set correctly here as we should not
     // change the "binding" behavior of a comment.
