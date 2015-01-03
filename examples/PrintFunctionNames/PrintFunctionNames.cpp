@@ -99,67 +99,68 @@ namespace {
 
     /// Dump a child of the current node.
     template<typename Fn> void dumpChild(Fn doDumpChild) {
-      // If we're at the top level, there's nothing interesting to do; just
-      // run the dumper.
-      if (TopLevel) {
-        TopLevel = false;
-        doDumpChild();
-        while (!Pending.empty()) {
-          Pending.back()(true);
-          Pending.pop_back();
-        }
-        Prefix.clear();
-        OS << "\n";
-        TopLevel = true;
-        return;
-      }
+      // // If we're at the top level, there's nothing interesting to do; just
+      // // run the dumper.
+      // if (TopLevel) {
+      //   TopLevel = false;
+      //   doDumpChild();
+      //   while (!Pending.empty()) {
+      //     Pending.back()(true);
+      //     Pending.pop_back();
+      //   }
+      //   Prefix.clear();
+      //   OS << "\n";
+      //   TopLevel = true;
+      //   return;
+      // }
 
-      const FullComment *OrigFC = FC;
-      auto dumpWithIndent = [this, doDumpChild, OrigFC](bool isLastChild) {
-        // Print out the appropriate tree structure and work out the prefix for
-        // children of this node. For instance:
-        //
-        //   A        Prefix = ""
-        //   |-B      Prefix = "| "
-        //   | `-C    Prefix = "|   "
-        //   `-D      Prefix = "  "
-        //     |-E    Prefix = "  | "
-        //     `-F    Prefix = "    "
-        //   G        Prefix = ""
-        //
-        // Note that the first level gets no prefix.
-        {
-          OS << '\n';
-          ColorScope Color(*this, IndentColor);
-          OS << Prefix << (isLastChild ? '`' : '|') << '-';
-          this->Prefix.push_back(isLastChild ? ' ' : '|');
-          this->Prefix.push_back(' ');
-        }
+      // const FullComment *OrigFC = FC;
+      // auto dumpWithIndent = [this, doDumpChild, OrigFC](bool isLastChild) {
+      //   // Print out the appropriate tree structure and work out the prefix for
+      //   // children of this node. For instance:
+      //   //
+      //   //   A        Prefix = ""
+      //   //   |-B      Prefix = "| "
+      //   //   | `-C    Prefix = "|   "
+      //   //   `-D      Prefix = "  "
+      //   //     |-E    Prefix = "  | "
+      //   //     `-F    Prefix = "    "
+      //   //   G        Prefix = ""
+      //   //
+      //   // Note that the first level gets no prefix.
+      //   {
+      //     OS << '\n';
+      //     ColorScope Color(*this, IndentColor);
+      //     OS << Prefix << (isLastChild ? '`' : '|') << '-';
+      //     this->Prefix.push_back(isLastChild ? ' ' : '|');
+      //     this->Prefix.push_back(' ');
+      //   }
 
-        FirstChild = true;
-        unsigned Depth = Pending.size();
+      //   FirstChild = true;
+      //   unsigned Depth = Pending.size();
 
-        FC = OrigFC;
-        doDumpChild();
+      //   FC = OrigFC;
+      OS << '\n';
+      doDumpChild();
 
-        // If any children are left, they're the last at their nesting level.
-        // Dump those ones out now.
-        while (Depth < Pending.size()) {
-          Pending.back()(true);
-          this->Pending.pop_back();
-        }
+      //   // If any children are left, they're the last at their nesting level.
+      //   // Dump those ones out now.
+      //   while (Depth < Pending.size()) {
+      //     Pending.back()(true);
+      //     this->Pending.pop_back();
+      //   }
 
-        // Restore the old prefix.
-        this->Prefix.resize(Prefix.size() - 2);
-      };
+      //   // Restore the old prefix.
+      //   this->Prefix.resize(Prefix.size() - 2);
+      // };
 
-      if (FirstChild) {
-        Pending.push_back(std::move(dumpWithIndent));
-      } else {
-        Pending.back()(false);
-        Pending.back() = std::move(dumpWithIndent);
-      }
-      FirstChild = false;
+      // if (FirstChild) {
+      //   Pending.push_back(std::move(dumpWithIndent));
+      // } else {
+      //   Pending.back()(false);
+      //   Pending.back() = std::move(dumpWithIndent);
+      // }
+      // FirstChild = false;
     }
 
     class ColorScope {
@@ -192,7 +193,6 @@ namespace {
     void dumpStmt(const Stmt *S);
 
     // Utilities
-    // void dumpLocation(SourceLocation Loc);
     void dumpBareType(QualType T, bool Desugar = true);
     void dumpType(QualType T);
     void dumpTypeAsChild(QualType T);
@@ -511,10 +511,10 @@ void ASTDumper::dumpTypeAsChild(const Type *T) {
 }
 
 void ASTDumper::dumpBareDeclRef(const Decl *D) {
-  {
-    ColorScope Color(*this, DeclKindNameColor);
-    OS << D->getDeclKindName();
-  }
+  // {
+  //   ColorScope Color(*this, DeclKindNameColor);
+  //   OS << D->getDeclKindName();
+  // }
 
   if (const NamedDecl *ND = dyn_cast<NamedDecl>(D)) {
     ColorScope Color(*this, DeclNameColor);
@@ -530,8 +530,8 @@ void ASTDumper::dumpDeclRef(const Decl *D, const char *Label) {
     return;
 
   dumpChild([=]{
-    if (Label)
-      OS << Label << ' ';
+    // if (Label)
+    //   OS << Label << ' ';
     dumpBareDeclRef(D);
   });
 }
@@ -567,81 +567,81 @@ void ASTDumper::dumpDeclContext(const DeclContext *DC) {
 }
 
 void ASTDumper::dumpLookups(const DeclContext *DC, bool DumpDecls) {
-  dumpChild([=] {
-    OS << "StoredDeclsMap ";
-    dumpBareDeclRef(cast<Decl>(DC));
+  // dumpChild([=] {
+  //   OS << "StoredDeclsMap ";
+  //   dumpBareDeclRef(cast<Decl>(DC));
 
-    const DeclContext *Primary = DC->getPrimaryContext();
-    if (Primary != DC) {
-      OS << " primary";
-    }
+  //   const DeclContext *Primary = DC->getPrimaryContext();
+  //   if (Primary != DC) {
+  //     OS << " primary";
+  //   }
 
-    bool HasUndeserializedLookups = Primary->hasExternalVisibleStorage();
+  //   bool HasUndeserializedLookups = Primary->hasExternalVisibleStorage();
 
-    DeclContext::all_lookups_iterator I = Primary->noload_lookups_begin(),
-                                      E = Primary->noload_lookups_end();
-    while (I != E) {
-      DeclarationName Name = I.getLookupName();
-      DeclContextLookupResult R = *I++;
+  //   DeclContext::all_lookups_iterator I = Primary->noload_lookups_begin(),
+  //                                     E = Primary->noload_lookups_end();
+  //   while (I != E) {
+  //     DeclarationName Name = I.getLookupName();
+  //     DeclContextLookupResult R = *I++;
 
-      dumpChild([=] {
-        OS << "DeclarationName ";
-        {
-          ColorScope Color(*this, DeclNameColor);
-          OS << '\'' << Name << '\'';
-        }
+  //     dumpChild([=] {
+  //       OS << "DeclarationName ";
+  //       {
+  //         ColorScope Color(*this, DeclNameColor);
+  //         OS << '\'' << Name << '\'';
+  //       }
 
-        for (DeclContextLookupResult::iterator RI = R.begin(), RE = R.end();
-             RI != RE; ++RI) {
-          dumpChild([=] {
-            dumpBareDeclRef(*RI);
+  //       for (DeclContextLookupResult::iterator RI = R.begin(), RE = R.end();
+  //            RI != RE; ++RI) {
+  //         dumpChild([=] {
+  //           dumpBareDeclRef(*RI);
 
-            if ((*RI)->isHidden())
-              OS << " hidden";
+  //           if ((*RI)->isHidden())
+  //             OS << " hidden";
 
-            // If requested, dump the redecl chain for this lookup.
-            if (DumpDecls) {
-              // Dump earliest decl first.
-              std::function<void(Decl *)> DumpWithPrev = [&](Decl *D) {
-                if (Decl *Prev = D->getPreviousDecl())
-                  DumpWithPrev(Prev);
-                dumpDecl(D);
-              };
-              DumpWithPrev(*RI);
-            }
-          });
-        }
-      });
-    }
+  //           // If requested, dump the redecl chain for this lookup.
+  //           if (DumpDecls) {
+  //             // Dump earliest decl first.
+  //             std::function<void(Decl *)> DumpWithPrev = [&](Decl *D) {
+  //               if (Decl *Prev = D->getPreviousDecl())
+  //                 DumpWithPrev(Prev);
+  //               dumpDecl(D);
+  //             };
+  //             DumpWithPrev(*RI);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
 
-    if (HasUndeserializedLookups) {
-      dumpChild([=] {
-        ColorScope Color(*this, UndeserializedColor);
-        OS << "<undeserialized lookups>";
-      });
-    }
-  });
+  //   if (HasUndeserializedLookups) {
+  //     dumpChild([=] {
+  //       ColorScope Color(*this, UndeserializedColor);
+  //       OS << "<undeserialized lookups>";
+  //     });
+  //   }
+  // });
 }
 
 void ASTDumper::dumpAttr(const Attr *A) {
-  dumpChild([=] {
-    {
-      ColorScope Color(*this, AttrColor);
+//   dumpChild([=] {
+//     {
+//       ColorScope Color(*this, AttrColor);
 
-      switch (A->getKind()) {
-#define ATTR(X) case attr::X: OS << #X; break;
-#include "clang/Basic/AttrList.inc"
-      default:
-        llvm_unreachable("unexpected attribute kind");
-      }
-      OS << "Attr";
-    }
-    if (A->isInherited())
-      OS << " Inherited";
-    if (A->isImplicit())
-      OS << " Implicit";
-#include "clang/AST/AttrDump.inc"
-  });
+//       switch (A->getKind()) {
+// #define ATTR(X) case attr::X: OS << #X; break;
+// #include "clang/Basic/AttrList.inc"
+//       default:
+//         llvm_unreachable("unexpected attribute kind");
+//       }
+//       OS << "Attr";
+//     }
+//     if (A->isInherited())
+//       OS << " Inherited";
+//     if (A->isImplicit())
+//       OS << " Implicit";
+// #include "clang/AST/AttrDump.inc"
+//   });
 }
 
 static void dumpPreviousDeclImpl(raw_ostream &OS, ...) {}
@@ -678,19 +678,19 @@ static void dumpPreviousDecl(raw_ostream &OS, const Decl *D) {
 //===----------------------------------------------------------------------===//
 
 void ASTDumper::dumpAccessSpecifier(AccessSpecifier AS) {
-  switch (AS) {
-  case AS_none:
-    break;
-  case AS_public:
-    OS << "public";
-    break;
-  case AS_protected:
-    OS << "protected";
-    break;
-  case AS_private:
-    OS << "private";
-    break;
-  }
+  // switch (AS) {
+  // case AS_none:
+  //   break;
+  // case AS_public:
+  //   OS << "public";
+  //   break;
+  // case AS_protected:
+  //   OS << "protected";
+  //   break;
+  // case AS_private:
+  //   OS << "private";
+  //   break;
+  // }
 }
 
 void ASTDumper::dumpCXXCtorInitializer(const CXXCtorInitializer *Init) {
@@ -845,33 +845,33 @@ void ASTDumper::VisitTypedefDecl(const TypedefDecl *D) {
 }
 
 void ASTDumper::VisitEnumDecl(const EnumDecl *D) {
-  if (D->isScoped()) {
-    if (D->isScopedUsingClassTag())
-      OS << " class";
-    else
-      OS << " struct";
-  }
-  dumpName(D);
-  if (D->isModulePrivate())
-    OS << " __module_private__";
-  if (D->isFixed())
-    dumpType(D->getIntegerType());
+  // if (D->isScoped()) {
+  //   if (D->isScopedUsingClassTag())
+  //     OS << " class";
+  //   else
+  //     OS << " struct";
+  // }
+  // dumpName(D);
+  // if (D->isModulePrivate())
+  //   OS << " __module_private__";
+  // if (D->isFixed())
+  //   dumpType(D->getIntegerType());
 }
 
 void ASTDumper::VisitRecordDecl(const RecordDecl *D) {
-  OS << ' ' << D->getKindName();
-  dumpName(D);
-  if (D->isModulePrivate())
-    OS << " __module_private__";
-  if (D->isCompleteDefinition())
-    OS << " definition";
+  // OS << ' ' << D->getKindName();
+  // dumpName(D);
+  // if (D->isModulePrivate())
+  //   OS << " __module_private__";
+  // if (D->isCompleteDefinition())
+  //   OS << " definition";
 }
 
 void ASTDumper::VisitEnumConstantDecl(const EnumConstantDecl *D) {
-  dumpName(D);
-  dumpType(D->getType());
-  if (const Expr *Init = D->getInitExpr())
-    dumpStmt(Init);
+  // dumpName(D);
+  // dumpType(D->getType());
+  // if (const Expr *Init = D->getInitExpr())
+  //   dumpStmt(Init);
 }
 
 void ASTDumper::VisitIndirectFieldDecl(const IndirectFieldDecl *D) {
@@ -889,12 +889,6 @@ void ASTDumper::VisitFunctionDecl(const FunctionDecl *D) {
   StorageClass SC = D->getStorageClass();
   if (SC != SC_None)
     OS << ' ' << VarDecl::getStorageClassSpecifierString(SC);
-  if (D->isInlineSpecified())
-    OS << " inline";
-  if (D->isVirtualAsWritten())
-    OS << " virtual";
-  if (D->isModulePrivate())
-    OS << " __module_private__";
 
   if (D->isPure())
     OS << " pure";
