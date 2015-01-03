@@ -1357,7 +1357,9 @@ static bool isFunctionDeclarationName(const FormatToken &Current) {
   }
   if (!Next)
     return false;
-  assert(Next->is(tok::l_paren));
+  if (!Next->is(tok::l_paren))
+    return false;
+
   if (Next->Next == Next->MatchingParen)
     return true;
   for (const FormatToken *Tok = Next->Next; Tok != Next->MatchingParen;
